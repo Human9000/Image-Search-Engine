@@ -1,0 +1,112 @@
+＃coding = utf-8
+从烧瓶导入render_template，url_for，会话，闪存，重定向，响应
+从flask_moment导入时刻
+从LoginRegister导入LNameForm，RNameForm
+从config import user，app，db
+导入echarts
+从echarts导入render_tem，DEFAULT_HOST，图表
+导入系统
+重装（SYS）
+sys.setdefaultencoding函数（ 'UTF8'）
+
+对于我在User.query.all（）中：
+    打印0
+
+时刻=时刻（应用程式）
+
+进口cv2
+
+VideoCamera类（对象）：
+    def __init __（self）：
+        ＃通过opencv获取实时视频流
+        self.video = cv2.VideoCapture（0）
+
+    def __del __（self）：
+        self.video.release（）
+
+    def get_frame（self）：
+        success，image = self.video.read（）
+        ＃因为opencv读取的图片并非jpeg格式，因此要用运动JPEG模式需要先将图片转码成jpg格式图片
+        ret，jpeg = cv2.imencode（'。jpg'，image）
+        返回jpeg.tobytes（）
+
+
+@ app.route（ '/'）
+def index（）：
+    return render_template（'base.html'）
+
+@ app.route（ '/成功'）
+def success（）：
+    return render_template（'success.html'）
+
+@ app.route（'/ login'，methods = ['GET'，'POST']）
+def login（）：
+    form = LNameForm（）
+    如果form.validate_on_submit（）：
+        session ['name'] = form.name.data
+        session ['pass_word'] = form.pass_word.data
+        List = User.query.filter_by（）。all（）
+        为列表中的用户：
+            如果session ['name'] == user.username和session ['pass_word'] == user.password：
+                return redirect（url_for（'Chart'））
+        闪存（ “用户名或密码错误，请重新输入！”）
+        return redirect（url_for（'login'））
+    return render_template（'login.html'，form = form，name = session.get（'name'），pass_word = session.get（'pass_word'））
+
+@ app.route（'/ reqister'，methods = ['GET'，'POST']）
+def register（）：
+    name = None
+    tel =无
+    pass_word =无
+    form = RNameForm（）
+    如果form.validate_on_submit（）：
+        name = form.name.data
+        tel = form.tel.data
+        pass_word = form.pass_word.data
+        form.name.data =''
+        form.tel.data =''
+        form.pass_word.data =''
+        user = User（username = name，telephone = tel，password = pass_word）
+        db.session.add（用户）
+        db.session.commit（）
+        return redirect（url_for（'login'））
+    return render_template（“register.html”，form = form，name = name，tel = tel，pass_word = pass_word）
+
+@ app.route（'/ chart'，methods = ['GET'，'POST']）
+def Chart（）：
+    return render_template（'chart.html'，
+                                biaoge = render_tem，
+                                主机= default_host的，
+                                script_list = chart.get_js_dependencies（）
+                           ）
+
+@ app.route（'/ vidio'）#vidio
+def indexm（）：
+    ＃jinja2模板，具体格式保存在index.html文件中
+    return render_template（'vidio.html'）
+
+def gen（相机）：
+    而真：
+        frame = camera.get_frame（）
+        ＃使用生成函数输出视频流，每次请求输出的内容类型是image / jpeg
+        产量（b' -  frame \ r \ n'
+               b'Content-Type：image / jpeg \ r \ n \ r \ n'+ frame + b'\ r \ n \ r \ n'）
+
+@ app.route（'/ video_feed'）＃这个地址返回视频流响应
+def video_feed（）：
+    return Response（gen（VideoCamera（）），
+                    mime类型='多部分/ X  - 混合取代; 边界=帧'）
+
+@ app.errorhandler（404）
+def page_not_found（e）：
+    return render_template（'404.html'），404
+
+@ app.errorhandler（500）
+def internal_server_error（e）：
+    return render_template（'500.html'），500
+
+如果__name__ =='__main__'：
+    app.run（调试=真，螺纹=真）
+
+＃if __name__ =='__main__'：
+＃manager.run（）
